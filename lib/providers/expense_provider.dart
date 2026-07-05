@@ -14,6 +14,7 @@ class ExpenseProvider extends ChangeNotifier {
   late final ExpenseDatabase _database;
   final List<Expense> _expenses = [];
   bool _isLoading = false;
+  String _error = "";
 
   // sort and filters
 
@@ -41,41 +42,68 @@ class ExpenseProvider extends ChangeNotifier {
   {_database =  database ?? ExpenseDatabase.instance;
   }
 
-  Future <void> loadExpense() async{
+   Future<void> loadExpense() async {
+    
     _isLoading = true;
     notifyListeners();
 
-    final data = await _database.fetchExpenses();
-    _expenses.clear();
-    _expenses.addAll(data);
-
-    _isLoading = false;
-    notifyListeners();
-  }
-
-  Future <void> addExpense(Expense expense) async {
-    final id = await _database.insertExpense(expense);
-    _expenses.add(expense.copyWith(id: id));
-    notifyListeners();
-  }
-
-  Future <void> updateExpense(Expense expense) async {
-    await _database.updateExpense(expense);
-    final index = _expenses.indexWhere((e) => e.id == expense.id);
-
-    if(index != -1)
-    {
-      _expenses[index] = expense;
+    try {
+      final data = await _database.fetchExpenses();
+      _expenses.clear();
+      _expenses.addAll(data);
+    } 
+    catch (e) {
+      _error = "Failed to load expenses: $e";
+      debugPrint("Error loading expenses: $e");
+    } 
+    
+    finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
 
-  Future <void> deleteExpense(int id) async {
-    await _database.deleteExpense(id);
-    _expenses.removeWhere((expense)=> expense.id == id);
-    notifyListeners();
+  Future<void> addExpense(Expense expense) async {
+    
+    try {
+      final id = await _database.insertExpense(expense);
+      _expenses.add(expense.copyWith(id: id));
+      notifyListeners();
+    } 
+    catch (e) {
+      _error = "Failed to add expense: $e";
+      debugPrint("Error adding expense: $e");
+      notifyListeners();
+    }
   }
- 
+
+  Future<void> updateExpense(Expense expense) async {
+    try {
+      await _database.updateExpense(expense);
+      final index = _expenses.indexWhere((e) => e.id == expense.id);
+
+      if (index != -1) {
+        _expenses[index] = expense;
+        notifyListeners();
+      }
+    } catch (e) {
+      _error = "Failed to update expense: $e";
+      debugPrint("Error updating expense: $e");
+      notifyListeners();
+    }
+  }
+
+  Future<void> deleteExpense(int id) async {
+    try {
+      await _database.deleteExpense(id);
+      _expenses.removeWhere((expense) => expense.id == id);
+      notifyListeners();
+    } catch (e) {
+      _error = "Failed to delete expense: $e";
+      debugPrint("Error deleting expense: $e");
+      notifyListeners();
+    }
+  }
  //filtering
 
 List<Expense>_filteredAndSorted(){

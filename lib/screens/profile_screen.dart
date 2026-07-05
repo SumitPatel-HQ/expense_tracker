@@ -39,7 +39,6 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final UserProfile? user = context.watch<UserProvider>().currentUser;
 
-
       void showConfirmDialog(BuildContext context){
 
         showDialog(
