@@ -55,8 +55,8 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   Future <void> updateExpense(Expense expense) async {
-    final id = await _database.updateExpense(expense);
-    final index = _expenses.indexWhere((expense) => expense.id == id);
+    await _database.updateExpense(expense);
+    final index = _expenses.indexWhere((e) => e.id == expense.id);
 
     if(index != -1)
     {
