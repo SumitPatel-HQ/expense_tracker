@@ -26,7 +26,7 @@ class UserProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> create_or_login(UserProfile profile) async {
+  Future<void> createOrLogin(UserProfile profile) async {
     await UserDatabase.instance.saveProfile(profile);
 
     final prefs = await SharedPreferences.getInstance();

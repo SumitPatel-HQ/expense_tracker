@@ -14,6 +14,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
+  bool _isSubmitted= false;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -22,6 +24,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLogin() async {
+    if(_isSubmitted) return;
+
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
 
@@ -31,22 +35,43 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
-    final user = UserProfile(
-      id: DateTime.now().microsecondsSinceEpoch,
+
+    setState((){_isSubmitted= true;});
+
+    try{ 
+      final user = UserProfile(
       name: name,
       email: email,
     );
-    await Provider.of<UserProvider>(
-      context,
-      listen: false,
-    ).create_or_login(user);
+    await Provider.of<UserProvider>(context, listen: false).createOrLogin(user);
+    if(mounted){
+      //navigate to home screen
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+      // HomeScreen is the place holder for the actual home screen class
+    }
+    } catch(error){
+      if(mounted){
+        ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: $error"), 
+          backgroundColor: Colors.redAccent,),
+      );
+      }
+    } finally{
+      if (mounted){
+        setState((){_isSubmitted= false;});
+      }
+    }
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
+  Widget _buildTextField(String hint, 
+  TextEditingController controller, 
+  TextInputType keyboardType = TextInputType.text,) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: TextField(
         controller: controller,
+        keyboardType: keyboardType,
         style: const TextStyle(color: Colors.white, fontSize: 12),
         textAlign: TextAlign.center,
         decoration: InputDecoration(
@@ -86,11 +111,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 textAlign: TextAlign.left,
               ),
               const SizedBox(height: 40),
-              _buildTextField(_nameController, 'name'),
-              _buildTextField(_emailController, 'email'),
+              _buildTextField('name', _nameController),
+              _buildTextField('email', _emailController, keyboardType: TextInputType.emailAddress),
 
               OutlinedButton(
-                onPressed: _handleLogin,
+                onPressed: _isSubmitted ? null: _handleLogin,
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   side: const BorderSide(color: Colors.white54, width: 1.5),
@@ -98,7 +123,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     borderRadius: BorderRadius.circular(16),
                   ),
                 ),
-                child: const Text(
+                child: _isSubmitted ? const SizedBox(
+                  height: 20,
+                  width: 20,
+                  child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2,),
+                )
+                : const Text(
                   'Login',
                   style: TextStyle(color: Colors.white, fontSize: 16),
                 ),
