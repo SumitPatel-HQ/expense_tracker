@@ -39,6 +39,32 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final UserProfile? user = context.watch<UserProvider>().currentUser;
 
+
+      void showConfirmDialog(BuildContext context){
+
+        showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder:(context){
+          return AlertDialog(
+            title: Text("Logout Alert"),
+            content: Text("Are you sure you want to logout?"),
+            actions: [
+              TextButton(onPressed: ()
+              {Navigator.of(context).pop();
+              _handleLogout(context);
+              }, 
+              child: Text("Yes")),
+
+              TextButton(onPressed: ()
+              {Navigator.of(context).pop();}, 
+              child: Text("No"))
+            ],
+          );
+        }
+        );
+      }
+
     return Scaffold(
       backgroundColor: const Color(0xFF151515),
       body: SafeArea(
@@ -75,7 +101,7 @@ class ProfileScreen extends StatelessWidget {
               const SizedBox(height: 20),
 
               OutlinedButton(
-                onPressed: () => _handleLogout(context),
+                onPressed: () => showConfirmDialog(context),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 20),
                   side: const BorderSide(color: Colors.white54, width: 1.5),
