@@ -4,6 +4,11 @@ import 'package:expense_tracker/models/expense.dart';
 import 'package:flutter/material.dart';
 import 'package:expense_tracker/models/category.dart';
 
+  enum SortOption{
+    date, 
+    amount,
+  }
+
 class ExpenseProvider extends ChangeNotifier {
   
   late final ExpenseDatabase _database;
@@ -14,15 +19,15 @@ class ExpenseProvider extends ChangeNotifier {
 
   String _searchQuery = "";
   Category? _categoryFilter;
-  String _sortBy = "date";
   bool _sortAscending = false;
+  SortOption _sortBy = SortOption.date;
 
   // Getters
 
   bool get isLoading => _isLoading;
   String get searchQuery => _searchQuery;
   Category? get categoryFilter => _categoryFilter;
-  String get sortBy => _sortBy;
+  SortOption get sortBy => _sortBy;
   bool get sortAscending => _sortAscending;
   List<Expense> get expenses =>_filteredAndSorted();
 
@@ -94,11 +99,11 @@ List<Expense>_filteredAndSorted(){
   result.sort((a,b){
 
     int comparison = 0;
-    if(_sortBy == "date"){
+    if(_sortBy == SortOption.date){
       comparison = a.date.compareTo(b.date);
     }
 
-    else if(_sortBy == "amount"){
+    else if(_sortBy == SortOption.amount){
       comparison = a.amount.compareTo(b.amount);
     }
 
@@ -128,7 +133,7 @@ List<Expense>_filteredAndSorted(){
     notifyListeners();
   }
 
-  void setSortBy(String sortBy) {
+  void setSortBy(SortOption sortBy) {
     if (_sortBy == sortBy) {
       _sortAscending = !_sortAscending;
     } else {
@@ -146,7 +151,7 @@ List<Expense>_filteredAndSorted(){
   void resetFilters() {
     _searchQuery = '';
     _categoryFilter = null;
-    _sortBy = 'date';
+    _sortBy = SortOption.date;
     _sortAscending = false;
     notifyListeners();
   }
