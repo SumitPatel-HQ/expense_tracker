@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:expense_tracker/models/user_profile.dart';
 import 'package:expense_tracker/providers/user_provider.dart';
-import 'package:expense_tracker/screens/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -13,20 +12,66 @@ class ProfileScreen extends StatelessWidget {
       padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 20),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.white54, width: 1.5),
-        color: Colors.white.withValues(), // Added subtle background
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            Colors.white.withValues(alpha: 0.08),
+            Colors.white.withValues(alpha: 0.02),
+          ],
+        ),
+        border: Border.all(
+          color: Colors.white.withValues(alpha: .15),
+          width: 1.5,
+        ),
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Row(
         children: [
-          Text(
-            label,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
+          // Icon for each field
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: .1),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              label == 'Name' ? Icons.person_outline : Icons.email_outlined,
+              color: Colors.white70,
+              size: 22,
+            ),
           ),
-          const SizedBox(height: 6),
-          Text(
-            value,
-            style: const TextStyle(color: Colors.white, fontSize: 16),
+          const SizedBox(width: 16),
+          // Text content
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.grey,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          // Small edit hint
+          Icon(
+            Icons.chevron_right,
+            color: Colors.white.withValues(alpha: 0.2),
+            size: 20,
           ),
         ],
       ),
@@ -35,13 +80,6 @@ class ProfileScreen extends StatelessWidget {
 
   void _handleLogout(BuildContext context) async {
     await Provider.of<UserProvider>(context, listen: false).logout();
-    if (context.mounted) {
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_) => const LoginScreen()),
-        (route) => false,
-      );
-    }
   }
 
   void showConfirmDialog(BuildContext context) {
@@ -128,9 +166,9 @@ class ProfileScreen extends StatelessWidget {
                   height: 100,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: Colors.white.withValues(),
+                    color: Colors.white.withValues(alpha: .1),
                     border: Border.all(
-                      color: Colors.white.withValues(),
+                      color: Colors.white.withValues(alpha: .3),
                       width: 2,
                     ),
                   ),

@@ -34,7 +34,7 @@ class ExpenseProvider extends ChangeNotifier {
     final Set<Category> categorySet = _expenses.map((e) => e.category).toSet();
     return categorySet.toList();
   }
-.
+  
   double get totalSpend {
     return _expenses.fold(0, (sum, expense) => sum + expense.amount);
   }
