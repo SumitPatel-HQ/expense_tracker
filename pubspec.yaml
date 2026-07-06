@@ -40,7 +40,6 @@ dependencies:
   # Required for cross-platform path joining in database initialization.
   path: any
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter

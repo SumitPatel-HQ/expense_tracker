@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:expense_tracker/models/user_profile.dart';
 import 'package:expense_tracker/providers/user_provider.dart';
+import 'package:expense_tracker/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -14,6 +15,8 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
 
+  bool _isSubmitted = false;
+
   @override
   void dispose() {
     _nameController.dispose();
@@ -22,6 +25,8 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   void _handleLogin() async {
+    if (_isSubmitted) return;
+
     final name = _nameController.text.trim();
     final email = _emailController.text.trim();
 
@@ -31,76 +36,128 @@ class _LoginScreenState extends State<LoginScreen> {
       );
       return;
     }
-    final user = UserProfile(
-      id: DateTime.now().microsecondsSinceEpoch,
-      name: name,
-      email: email,
-    );
-    await Provider.of<UserProvider>(
-      context,
-      listen: false,
-    ).create_or_login(user);
+
+    setState(() { _isSubmitted = true; });
+
+    try {
+      final user = UserProfile(
+        name: name,
+        email: email,
+      );
+      await Provider.of<UserProvider>(context, listen: false).createOrLogin(user);
+      if (mounted) {
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
+      }
+    } catch (error) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text("Error: $error"),
+            backgroundColor: Colors.redAccent,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() { _isSubmitted = false; });
+      }
+    }
   }
 
-  Widget _buildTextField(TextEditingController controller, String hint) {
+  Widget _buildTextField(
+    String hint,
+    TextEditingController controller,
+    IconData icon, {
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return Padding(
-      padding: const EdgeInsets.only(bottom: 20.0),
+      padding: const EdgeInsets.only(bottom: 16.0),
       child: TextField(
         controller: controller,
-        style: const TextStyle(color: Colors.white, fontSize: 12),
-        textAlign: TextAlign.center,
+        keyboardType: keyboardType,
+        style: const TextStyle(color: Colors.black87, fontSize: 15),
         decoration: InputDecoration(
           hintText: hint,
-          hintStyle: const TextStyle(color: Colors.grey),
-          contentPadding: const EdgeInsets.symmetric(vertical: 20),
+          hintStyle: TextStyle(color: Colors.grey.shade500),
+          prefixIcon: Icon(icon, color: Colors.deepPurple, size: 22),
+          filled: true,
+          fillColor: Colors.white,
+          contentPadding: const EdgeInsets.symmetric(vertical: 18, horizontal: 16),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.white54, width: 1.5),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: BorderSide(color: Colors.grey.shade200, width: 1.5),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(16),
-            borderSide: const BorderSide(color: Colors.white, width: 2),
+            borderRadius: BorderRadius.circular(14),
+            borderSide: const BorderSide(color: Colors.deepPurple, width: 2),
           ),
         ),
       ),
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFF151515),
+      backgroundColor: const Color(0xFFF8F8F8),
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40),
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              const SizedBox(height: 80),
+
               const Text(
-                'Login',
+                'Welcome Back',
                 style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 24,
+                  color: Colors.black87,
+                  fontSize: 28,
                   fontWeight: FontWeight.bold,
                 ),
-                textAlign: TextAlign.left,
               ),
-              const SizedBox(height: 40),
-              _buildTextField(_nameController, 'name'),
-              _buildTextField(_emailController, 'email'),
 
-              OutlinedButton(
-                onPressed: _handleLogin,
-                style: OutlinedButton.styleFrom(
-                  padding: const EdgeInsets.symmetric(vertical: 20),
-                  side: const BorderSide(color: Colors.white54, width: 1.5),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
+              const SizedBox(height: 40),
+
+              _buildTextField('Full Name', _nameController, Icons.person_outline),
+              _buildTextField(
+                'Email Address',
+                _emailController,
+                Icons.email_outlined,
+                keyboardType: TextInputType.emailAddress,
+              ),
+
+              const SizedBox(height: 8),
+
+              SizedBox(
+                height: 56,
+                child: ElevatedButton(
+                  onPressed: _isSubmitted ? null : _handleLogin,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.deepPurple,
+                    disabledBackgroundColor: Colors.deepPurple.withValues(alpha: 0.5),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                    elevation: 0,
                   ),
-                ),
-                child: const Text(
-                  'Login',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
+                  child: _isSubmitted
+                      ? const SizedBox(
+                          height: 22,
+                          width: 22,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2.5,
+                          ),
+                        )
+                      : const Text(
+                          'Login',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                 ),
               ),
             ],
