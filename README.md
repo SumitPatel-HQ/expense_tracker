@@ -23,4 +23,3 @@ current branch is develop
 team members:
 1. ashish-dev
 2. sumit 
->>>>>>> e94b32b73378cfa76c49a3d4f22ccc3f90b0574a
