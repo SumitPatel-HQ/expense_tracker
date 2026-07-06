@@ -16,7 +16,7 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
 
   Category? _selectedCategory;
-  SortOption _selectedSort = SortOption.date;
+  SortOption _selectedSort = SortOption.dateDesc;
 
   @override
   void initState() {
@@ -162,15 +162,24 @@ class _HomePageState extends State<HomePage> {
                               child: DropdownButton<SortOption>(
                                 value: _selectedSort,
                                 isExpanded: true,
-                                items: SortOption.values.map((sort) {
-                                  return DropdownMenuItem(
-                                    value: sort,
-                                    child: Text(
-                                      sort.name[0].toUpperCase() +
-                                          sort.name.substring(1),
-                                    ),
-                                  );
-                                }).toList(),
+                                items: const [
+                                  DropdownMenuItem(
+                                    value: SortOption.dateDesc,
+                                    child: Text('Date: Newest'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: SortOption.dateAsc,
+                                    child: Text('Date: Oldest'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: SortOption.amountAsc,
+                                    child: Text('Amount: Low to High'),
+                                  ),
+                                  DropdownMenuItem(
+                                    value: SortOption.amountDesc,
+                                    child: Text('Amount: High to Low'),
+                                  ),
+                                ],
                                 onChanged: (value) {
                                   if (value == null) return;
                                   setState(() {

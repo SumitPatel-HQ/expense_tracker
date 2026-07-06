@@ -4,8 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:expense_tracker/models/category.dart';
 
 enum SortOption {
-  date,
-  amount,
+  dateDesc,
+  dateAsc,
+  amountAsc,
+  amountDesc,
 }
 
 class ExpenseProvider extends ChangeNotifier {
@@ -17,14 +19,12 @@ class ExpenseProvider extends ChangeNotifier {
   // Sort and filter state
   String _searchQuery = '';
   Category? _categoryFilter;
-  bool _sortAscending = false;
-  SortOption _sortBy = SortOption.date;
+  SortOption _sortBy = SortOption.dateDesc;
   bool get isLoading => _isLoading;
   String get error => _error;
   String get searchQuery => _searchQuery;
   Category? get categoryFilter => _categoryFilter;
   SortOption get sortBy => _sortBy;
-  bool get sortAscending => _sortAscending;
 
 
   List<Expense> get expenses => _filteredAndSorted();
@@ -118,13 +118,16 @@ class ExpenseProvider extends ChangeNotifier {
     }
 
     result.sort((a, b) {
-      int comparison = 0;
-      if (_sortBy == SortOption.date) {
-        comparison = a.date.compareTo(b.date);
-      } else if (_sortBy == SortOption.amount) {
-        comparison = a.amount.compareTo(b.amount);
+      switch (_sortBy) {
+        case SortOption.dateDesc:
+          return b.date.compareTo(a.date);
+        case SortOption.dateAsc:
+          return a.date.compareTo(b.date);
+        case SortOption.amountAsc:
+          return a.amount.compareTo(b.amount);
+        case SortOption.amountDesc:
+          return b.amount.compareTo(a.amount);
       }
-      return _sortAscending ? comparison : -comparison;
     });
 
     return result;
@@ -151,25 +154,14 @@ class ExpenseProvider extends ChangeNotifier {
   }
 
   void setSortBy(SortOption sortBy) {
-    if (_sortBy == sortBy) {
-      _sortAscending = !_sortAscending;
-    } else {
-      _sortBy = sortBy;
-      _sortAscending = false;
-    }
-    notifyListeners();
-  }
-
-  void toggleSortOrder() {
-    _sortAscending = !_sortAscending;
+    _sortBy = sortBy;
     notifyListeners();
   }
 
   void resetFilters() {
     _searchQuery = '';
     _categoryFilter = null;
-    _sortBy = SortOption.date;
-    _sortAscending = false;
+    _sortBy = SortOption.dateDesc;
     notifyListeners();
   }
 }
