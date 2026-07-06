@@ -2,9 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:expense_tracker/models/user_profile.dart';
 import 'package:expense_tracker/providers/user_provider.dart';
+import 'package:expense_tracker/screens/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({Key? key}) : super(key: key);
+  const LoginScreen({super.key});
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -46,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
     await Provider.of<UserProvider>(context, listen: false).createOrLogin(user);
     if(mounted){
       //navigate to home screen
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomeScreen()));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const HomePage()));
       // HomeScreen is the place holder for the actual home screen class
     }
     } catch(error){
@@ -64,9 +65,11 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-  Widget _buildTextField(String hint, 
-  TextEditingController controller, 
-  TextInputType keyboardType = TextInputType.text,) {
+  Widget _buildTextField(
+    String hint,
+    TextEditingController controller, {
+    TextInputType keyboardType = TextInputType.text,
+  }) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 20.0),
       child: TextField(
@@ -91,6 +94,7 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFF151515),

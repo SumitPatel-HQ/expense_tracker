@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:expense_tracker/models/user_profile.dart';
 import 'package:expense_tracker/providers/user_provider.dart';
+import 'package:expense_tracker/screens/login_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -33,6 +34,13 @@ class ProfileScreen extends StatelessWidget {
 
   void _handleLogout(BuildContext context) async {
     await Provider.of<UserProvider>(context, listen: false).logout();
+    if (context.mounted) {
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_) => const LoginScreen()),
+        (route) => false,
+      );
+    }
   }
 
   @override
