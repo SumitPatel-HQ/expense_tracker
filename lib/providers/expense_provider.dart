@@ -107,7 +107,6 @@ class ExpenseProvider extends ChangeNotifier {
       final query = _searchQuery.toLowerCase().trim();
       result = result.where((expense) {
         return expense.title.toLowerCase().contains(query) ||
-            expense.category.displayName.toLowerCase().contains(query) ||
             (expense.description?.toLowerCase().contains(query) ?? false);
       }).toList();
     }
